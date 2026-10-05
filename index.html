@@ -336,6 +336,18 @@ nav{
   line-height:1.35;
 }
 
+/* ---------- skills ---------- */
+.skill-grid{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+.skill-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px 22px;
+}
+.skill-name{font-size:0.82rem;color:var(--accent-2);margin-bottom:8px}
+.skill-desc{color:var(--muted);font-size:0.92rem;line-height:1.6}
+.skill-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
 /* ---------- contact ---------- */
 .contact-row{
   display:flex;
@@ -405,6 +417,7 @@ footer{
       <a href="#portfolio">portfolio</a>
       <a href="#blog">blog</a>
       <a href="#video">video</a>
+      <a href="#skills">skills</a>
       <a href="#contact">contact</a>
     </div>
   </div>
@@ -511,6 +524,22 @@ footer{
 
       <div class="cta-row">
         <a class="btn btn-ghost" href="https://www.youtube.com/@pareshstack" target="_blank" rel="noopener">All videos on YouTube →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="frame" hidden>
+    <div class="wrap">
+      <div class="frame-tag mono">skills</div>
+      <h2 style="font-size:1.6rem">Claude skills I've packaged</h2>
+      <p class="bio">Reusable playbooks for Claude and other AI assistants, built from real projects and shared publicly. This list is pulled live from the repo — publish a new skill there and it shows up here automatically, no rebuild needed.</p>
+
+      <div class="skill-grid" id="skills-list">
+        <p class="bio">Loading skills…</p>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-ghost" href="https://github.com/pareshstack/pareshstack-skills" target="_blank" rel="noopener">pareshstack-skills on GitHub →</a>
       </div>
     </div>
   </section>
@@ -700,6 +729,79 @@ function escapeHtml(str){
     })
     .catch(function(){
       renderFallback('Couldn\'t load videos right now —');
+    });
+})();
+
+/* ---------- live skills (read straight from the pareshstack-skills repo) ----------
+   No build step, no committed JSON, no scheduled Action: this fetches the repo's
+   skills/ folder and each SKILL.md directly from GitHub's public REST + raw-content
+   APIs at page-load time (both allow cross-origin GET for public repos). Publish a
+   new skill folder with a SKILL.md and it appears here on the very next page load. */
+(function(){
+  var grid = document.getElementById('skills-list');
+  var OWNER = 'pareshstack';
+  var REPO = 'pareshstack-skills';
+  var BRANCH = 'main';
+
+  function renderFallback(message){
+    grid.innerHTML = '<p class="bio">' + message + ' <a href="https://github.com/' + OWNER + '/' + REPO + '" target="_blank" rel="noopener">browse the repo</a> instead.</p>';
+  }
+
+  function parseFrontmatter(text){
+    var meta = {};
+    var match = text.match(/^---\s*([\s\S]*?)\s*---/);
+    if(!match) return meta;
+    match[1].split('\n').forEach(function(line){
+      var idx = line.indexOf(':');
+      if(idx === -1) return;
+      var key = line.slice(0, idx).trim();
+      var val = line.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+      if(key) meta[key] = val;
+    });
+    return meta;
+  }
+
+  fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/skills', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
+    .then(function(items){
+      var dirs = (items || []).filter(function(i){ return i.type === 'dir'; });
+      if(!dirs.length){ renderFallback('No skills published yet —'); return null; }
+
+      return Promise.all(dirs.map(function(d){
+        var rawUrl = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/skills/' + d.name + '/SKILL.md';
+        return fetch(rawUrl, { cache: 'no-store' })
+          .then(function(r){ return r.ok ? r.text() : ''; })
+          .then(function(text){
+            var meta = parseFrontmatter(text);
+            return {
+              folder: d.name,
+              name: meta.name || d.name,
+              description: meta.description || 'A Claude skill — see the repo for details.'
+            };
+          })
+          .catch(function(){
+            return { folder: d.name, name: d.name, description: 'A Claude skill — see the repo for details.' };
+          });
+      }));
+    })
+    .then(function(skills){
+      if(!skills) return;
+      if(!skills.length){ renderFallback('No skills published yet —'); return; }
+      grid.innerHTML = skills.map(function(s){
+        var repoUrl = 'https://github.com/' + OWNER + '/' + REPO + '/tree/' + BRANCH + '/skills/' + s.folder;
+        var downloadUrl = 'https://download-directory.github.io/?url=' + encodeURIComponent(repoUrl);
+        return '<div class="skill-card">' +
+                 '<div class="skill-name mono">' + escapeHtml(s.name) + '</div>' +
+                 '<div class="skill-desc">' + escapeHtml(s.description) + '</div>' +
+                 '<div class="skill-links">' +
+                   '<a class="btn btn-ghost" href="' + repoUrl + '" target="_blank" rel="noopener">View on GitHub</a>' +
+                   '<a class="btn btn-primary" href="' + downloadUrl + '" target="_blank" rel="noopener">Download</a>' +
+                 '</div>' +
+               '</div>';
+      }).join('');
+    })
+    .catch(function(){
+      renderFallback('Couldn\'t load skills right now —');
     });
 })();
 </script>
