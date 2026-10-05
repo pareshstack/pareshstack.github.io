@@ -14,75 +14,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch latest videos from channel RSS feed
+      - name: Set up yt-dlp
+        run: pip install --quiet --no-input yt-dlp
+
+      - name: Fetch latest long-form videos from the channel's Videos tab
         run: |
+          # The channel's "Videos" tab already excludes Shorts (those live
+          # under a separate "Shorts" tab), so this avoids the RSS feed's
+          # 15-item cap and the need to probe each video individually.
+          yt-dlp --flat-playlist --playlist-end 5 --dump-single-json \
+            "https://www.youtube.com/@pareshstack/videos" > raw.json
+
           python3 - <<'PY'
           import json
-          import urllib.request
-          import urllib.error
-          import xml.etree.ElementTree as ET
 
-          CHANNEL_ID = "UCHzeZ3vqw0yVTuLA9EbAe1Q"
-          MAX_VIDEOS = 6
-
-          feed_url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID
-          req = urllib.request.Request(feed_url, headers={"User-Agent": "Mozilla/5.0"})
-          with urllib.request.urlopen(req, timeout=30) as r:
-              data = r.read()
-
-          ns = {
-              "atom": "http://www.w3.org/2005/Atom",
-              "yt": "http://www.youtube.com/xml/schemas/2015",
-          }
-          root = ET.fromstring(data)
-
-          # /shorts/<id> serves the page directly (200) for an actual Short, but
-          # redirects to /watch?v=<id> for a long-form video. No official "is
-          # this a Short" flag exists in the RSS feed, so this redirect check is
-          # the reliable way to tell them apart.
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, *args, **kwargs):
-                  return None
-
-          opener = urllib.request.build_opener(NoRedirect)
-
-          def is_short(video_id):
-              req = urllib.request.Request(
-                  "https://www.youtube.com/shorts/" + video_id,
-                  method="HEAD",
-                  headers={"User-Agent": "Mozilla/5.0"},
-              )
-              try:
-                  resp = opener.open(req, timeout=15)
-                  code = resp.getcode()
-              except urllib.error.HTTPError as e:
-                  code = e.code
-              return code == 200
+          with open("raw.json") as f:
+              data = json.load(f)
 
           videos = []
-          for entry in root.findall("atom:entry", ns):
-              if len(videos) >= MAX_VIDEOS:
-                  break
-              vid_el = entry.find("yt:videoId", ns)
-              title_el = entry.find("atom:title", ns)
-              published_el = entry.find("atom:published", ns)
-              if vid_el is None or title_el is None:
+          for e in data.get("entries", [])[:5]:
+              vid = e.get("id")
+              title = e.get("title")
+              if not vid or not title:
                   continue
-              video_id = vid_el.text
-              if is_short(video_id):
-                  continue
-              videos.append({
-                  "id": video_id,
-                  "title": title_el.text,
-                  "published": published_el.text if published_el is not None else None,
-              })
+              videos.append({"id": vid, "title": title})
 
           with open("videos.json", "w") as f:
               json.dump(videos, f, indent=2)
               f.write("\n")
 
-          print("Wrote", len(videos), "long-form videos (Shorts excluded)")
+          print("Wrote", len(videos), "long-form videos")
           PY
+          rm -f raw.json
 
       - name: Commit if changed
         run: |
