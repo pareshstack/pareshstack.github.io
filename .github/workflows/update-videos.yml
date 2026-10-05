@@ -19,12 +19,14 @@ jobs:
           python3 - <<'PY'
           import json
           import urllib.request
+          import urllib.error
           import xml.etree.ElementTree as ET
 
           CHANNEL_ID = "UCHzeZ3vqw0yVTuLA9EbAe1Q"
-          url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID
+          MAX_VIDEOS = 6
 
-          req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+          feed_url = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID
+          req = urllib.request.Request(feed_url, headers={"User-Agent": "Mozilla/5.0"})
           with urllib.request.urlopen(req, timeout=30) as r:
               data = r.read()
 
@@ -34,15 +36,43 @@ jobs:
           }
           root = ET.fromstring(data)
 
+          # /shorts/<id> serves the page directly (200) for an actual Short, but
+          # redirects to /watch?v=<id> for a long-form video. No official "is
+          # this a Short" flag exists in the RSS feed, so this redirect check is
+          # the reliable way to tell them apart.
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs):
+                  return None
+
+          opener = urllib.request.build_opener(NoRedirect)
+
+          def is_short(video_id):
+              req = urllib.request.Request(
+                  "https://www.youtube.com/shorts/" + video_id,
+                  method="HEAD",
+                  headers={"User-Agent": "Mozilla/5.0"},
+              )
+              try:
+                  resp = opener.open(req, timeout=15)
+                  code = resp.getcode()
+              except urllib.error.HTTPError as e:
+                  code = e.code
+              return code == 200
+
           videos = []
-          for entry in root.findall("atom:entry", ns)[:6]:
+          for entry in root.findall("atom:entry", ns):
+              if len(videos) >= MAX_VIDEOS:
+                  break
               vid_el = entry.find("yt:videoId", ns)
               title_el = entry.find("atom:title", ns)
               published_el = entry.find("atom:published", ns)
               if vid_el is None or title_el is None:
                   continue
+              video_id = vid_el.text
+              if is_short(video_id):
+                  continue
               videos.append({
-                  "id": vid_el.text,
+                  "id": video_id,
                   "title": title_el.text,
                   "published": published_el.text if published_el is not None else None,
               })
@@ -51,7 +81,7 @@ jobs:
               json.dump(videos, f, indent=2)
               f.write("\n")
 
-          print("Wrote", len(videos), "videos")
+          print("Wrote", len(videos), "long-form videos (Shorts excluded)")
           PY
 
       - name: Commit if changed
