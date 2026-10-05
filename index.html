@@ -171,6 +171,26 @@ nav{
 }
 .profile-cap strong{color:var(--fg);font-weight:600;display:block;font-size:0.92rem;margin-bottom:2px}
 
+.stack-icons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.stack-icon{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:#171b23;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:transform .15s ease, border-color .15s ease;
+}
+.stack-icon:hover{transform:translateY(-2px);border-color:var(--accent)}
+.stack-icon svg{width:18px;height:18px}
+
 .about-block{
   margin-top:56px;
   padding-top:40px;
@@ -444,6 +464,48 @@ footer{
         <div class="profile-wrap">
           <img class="profile-pic" src="profile.jpg" alt="Paresh Sharma" onerror="this.style.display='none'">
           <div class="profile-cap mono"><strong>Paresh Sharma</strong>AI tooling · Dynamics 365</div>
+          <div class="stack-icons" aria-label="Tools I work with">
+            <span class="stack-icon" title="Dynamics 365">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="8" height="8" rx="1.5" fill="#4fb6a8"/>
+                <rect x="13" y="3" width="8" height="8" rx="1.5" fill="#3a8f84" opacity="0.8"/>
+                <rect x="3" y="13" width="8" height="8" rx="1.5" fill="#3a8f84" opacity="0.8"/>
+                <rect x="13" y="13" width="8" height="8" rx="1.5" fill="#4fb6a8"/>
+              </svg>
+            </span>
+            <span class="stack-icon" title="Business Central">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 19V8l8-4 8 4v11" stroke="#6aa8e0" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M9 19v-6h6v6" stroke="#6aa8e0" stroke-width="1.8" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="stack-icon" title="Power Platform">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L4 13h6l-1 9 9-13h-6l0-7z" fill="#e2a63b"/>
+              </svg>
+            </span>
+            <span class="stack-icon" title="Microsoft Copilot">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2.5c.6 3 2 5 5.5 5.5-3.5.5-4.9 2.5-5.5 5.5-.6-3-2-5-5.5-5.5 3.5-.5 4.9-2.5 5.5-5.5z" fill="#8ec1ea"/>
+                <path d="M18 14.5c.35 1.7 1.1 2.8 3 3.1-1.9.3-2.65 1.4-3 3.1-.35-1.7-1.1-2.8-3-3.1 1.9-.3 2.65-1.4 3-3.1z" fill="#8ec1ea"/>
+              </svg>
+            </span>
+            <span class="stack-icon" title="Claude">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#d97757">
+                  <circle cx="12" cy="12" r="1.6"/>
+                  <path d="M12 2.5l1.1 6.8-1.1 2-1.1-2z"/>
+                  <path d="M20.3 7.3l-5.9 3.7-2.2.6 1.1-2.1z"/>
+                  <path d="M21.5 16.3l-6.8-1.1-2-1.1 2-1.1z"/>
+                  <path d="M16.7 21.5l-3.7-5.9-.6-2.2 2.1 1.1z"/>
+                  <path d="M7.7 21.5l1.1-6.8 1.1-2 1.1 2z"/>
+                  <path d="M3.7 16.3l5.9-3.7 2.2-.6-1.1 2.1z"/>
+                  <path d="M2.5 7.3l6.8 1.1 2 1.1-2 1.1z"/>
+                  <path d="M7.3 2.5l3.7 5.9.6 2.2-2.1-1.1z"/>
+                </g>
+              </svg>
+            </span>
+          </div>
         </div>
       </div>
 
