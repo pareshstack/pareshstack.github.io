@@ -642,12 +642,12 @@ function escapeHtml(str){
   document.body.appendChild(s);
 })();
 
-/* ---------- live videos (YouTube channel RSS feed, no API key needed) ---------- */
+/* ---------- live videos ----------
+   videos.json lives in this same repo and is refreshed every few hours by a
+   GitHub Action (.github/workflows/update-videos.yml) that reads the channel's
+   RSS feed server-side. Fetching it here is same-origin, so there's no CORS
+   proxy involved and nothing for a browser or ad-blocker to interfere with. */
 (function(){
-  // Fill this in with your channel's UC... ID (find it via "view page source" on your
-  // channel's About tab and search for "channelId", or in YouTube Studio > Settings > Channel > Advanced).
-  var YT_CHANNEL_ID = 'UCHzeZ3vqw0yVTuLA9EbAe1Q';
-
   var grid = document.getElementById('video-grid');
 
   function renderFallback(message){
@@ -669,46 +669,33 @@ function escapeHtml(str){
     });
   }
 
-  if(!YT_CHANNEL_ID){
-    renderFallback('Add your YouTube channel ID in the code to show live videos here.');
-    return;
-  }
-
-  var feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + encodeURIComponent(YT_CHANNEL_ID);
-  var proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(feedUrl);
-
-  fetch(proxied)
-    .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.text(); })
-    .then(function(xmlText){
-      var xml = new DOMParser().parseFromString(xmlText, 'application/xml');
-      var entries = Array.prototype.slice.call(xml.getElementsByTagNameNS('*', 'entry')).slice(0, 6);
-      if(!entries.length){
+  fetch('videos.json', { cache: 'no-store' })
+    .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
+    .then(function(videos){
+      if(!videos || !videos.length){
         renderFallback('No videos yet —');
         return;
       }
-      grid.innerHTML = entries.map(function(entry){
-        var videoId = (entry.getElementsByTagNameNS('*', 'videoId')[0] || {}).textContent || '';
-        var title = (entry.getElementsByTagNameNS('*', 'title')[0] || {}).textContent || 'Untitled video';
-        var thumb = 'https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg';
-        return '<div class="video-card" data-id="' + escapeHtml(videoId) + '" data-title="' + escapeHtml(title) + '">' +
-                 '<div class="video-thumb" role="button" tabindex="0" aria-label="Play ' + escapeHtml(title) + '">' +
+      grid.innerHTML = videos.map(function(v){
+        var thumb = 'https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg';
+        return '<div class="video-card" data-id="' + escapeHtml(v.id) + '" data-title="' + escapeHtml(v.title) + '">' +
+                 '<div class="video-thumb" role="button" tabindex="0" aria-label="Play ' + escapeHtml(v.title) + '">' +
                    '<img src="' + thumb + '" alt="" loading="lazy">' +
                    '<span class="play-dot"><svg viewBox="0 0 24 24" fill="#1a1300"><path d="M8 5v14l11-7z"/></svg></span>' +
                  '</div>' +
-                 '<div class="video-title">' + escapeHtml(title) + '</div>' +
+                 '<div class="video-title">' + escapeHtml(v.title) + '</div>' +
                '</div>';
       }).join('');
       wireUpPlayButtons();
 
       // mirror the newest video into the Home tab's teaser card
       var homeVideo = document.getElementById('home-latest-video');
-      if(homeVideo && entries.length){
-        var firstId = (entries[0].getElementsByTagNameNS('*', 'videoId')[0] || {}).textContent || '';
-        var firstTitle = (entries[0].getElementsByTagNameNS('*', 'title')[0] || {}).textContent || 'Untitled video';
+      if(homeVideo){
+        var first = videos[0];
         var img = homeVideo.querySelector('.latest-thumb');
-        img.src = 'https://i.ytimg.com/vi/' + firstId + '/hqdefault.jpg';
+        img.src = 'https://i.ytimg.com/vi/' + first.id + '/hqdefault.jpg';
         img.classList.add('loaded');
-        homeVideo.querySelector('.latest-t').textContent = firstTitle;
+        homeVideo.querySelector('.latest-t').textContent = first.title;
       }
     })
     .catch(function(){
