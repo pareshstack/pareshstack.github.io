@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paresh's Stack</title>
+<meta name="description" content="Paresh's Stack — AI tooling, Dynamics 365 and Power Platform notes, blog posts and videos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: single page with a sticky pill-button nav (home/portfolio/blog/video/contact); each section is a full-width "frame" divided by a hairline */
+:root{
+  --bg:#0f1218;
+  --surface:#171b23;
+  --surface-2:#1e232d;
+  --line:#2a303b;
+  --fg:#eceef2;
+  --muted:#8b93a1;
+  --accent:#e2a63b;
+  --accent-2:#4fb6a8;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:"IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#1a1300}
+
+a{color:inherit}
+img{max-width:100%}
+
+.mono{font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace}
+
+h1,h2,h3{
+  font-family:"Fraunces", Georgia, "Times New Roman", serif;
+  font-weight:600;
+  text-wrap:balance;
+  margin:0;
+  letter-spacing:-0.01em;
+}
+
+.wrap{
+  max-width:860px;
+  margin-inline:auto;
+  padding-inline:24px;
+}
+
+/* ---------- nav ---------- */
+nav{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(15,18,24,0.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.navrow{
+  max-width:860px;
+  margin-inline:auto;
+  padding:14px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{
+  font-family:"Fraunces", serif;
+  font-weight:600;
+  font-size:1.05rem;
+  white-space:nowrap;
+}
+.brand span{color:var(--accent)}
+.navlinks{
+  display:flex;
+  gap:8px;
+  font-size:0.84rem;
+  flex-wrap:wrap;
+}
+.navlinks a{
+  text-decoration:none;
+  color:var(--muted);
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:7px 13px;
+  transition:color .15s ease, border-color .15s ease, background .15s ease;
+}
+.navlinks a:hover,.navlinks a:focus-visible{color:var(--fg);border-color:var(--muted)}
+.navlinks a.current{color:var(--bg);background:var(--accent);border-color:var(--accent)}
+
+/* ---------- frame (section) scaffold ---------- */
+.frame{
+  position:relative;
+  padding-block:72px;
+  border-bottom:1px solid var(--line);
+}
+.frame:last-of-type{border-bottom:none}
+.frame-tag{
+  font-size:0.76rem;
+  color:var(--accent-2);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:28px;
+}
+.frame-tag::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:var(--line);
+}
+
+/* ---------- hero ---------- */
+#home.frame{padding-block:64px 80px}
+.hero{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:40px;
+  align-items:center;
+}
+.hero h1{
+  font-size:clamp(2.3rem, 5vw, 3.4rem);
+  line-height:1.05;
+}
+.hero p.lede{
+  color:var(--muted);
+  font-size:1.08rem;
+  line-height:1.6;
+  margin-top:18px;
+  max-width:46ch;
+}
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:24px;
+}
+.tag{
+  font-size:0.76rem;
+  padding:6px 11px;
+  border:1px solid var(--line);
+  border-radius:100px;
+  color:var(--muted);
+}
+
+.profile-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  justify-self:center;
+}
+.profile-pic{
+  width:168px;
+  height:168px;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+  outline:2px solid var(--accent);
+  outline-offset:5px;
+}
+.profile-cap{
+  font-size:0.8rem;
+  color:var(--muted);
+  text-align:center;
+}
+.profile-cap strong{color:var(--fg);font-weight:600;display:block;font-size:0.92rem;margin-bottom:2px}
+
+.about-block{
+  margin-top:56px;
+  padding-top:40px;
+  border-top:1px solid var(--line);
+}
+.about-block h2{margin-bottom:14px}
+
+.latest-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:28px;
+}
+.latest-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:16px;
+  text-decoration:none;
+  color:inherit;
+  min-width:0;
+  display:block;
+  transition:border-color .15s ease;
+}
+.latest-card:hover{border-color:var(--muted)}
+.latest-k{font-size:0.72rem;color:var(--accent-2);margin-bottom:8px}
+.latest-t{font-size:0.95rem;font-weight:600;line-height:1.4}
+.latest-video-body{display:flex;gap:12px;align-items:center}
+.latest-thumb{
+  width:84px;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  border-radius:7px;
+  flex:none;
+  background:var(--surface-2);
+  display:none;
+}
+.latest-thumb.loaded{display:block}
+
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 18px;
+  border-radius:9px;
+  font-size:0.88rem;
+  font-weight:600;
+  text-decoration:none;
+  border:1px solid transparent;
+  cursor:pointer;
+  font-family:inherit;
+}
+.btn-primary{background:var(--accent);color:#1a1300}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--muted)}
+
+/* ---------- portfolio ---------- */
+.bio{
+  color:var(--muted);
+  font-size:1.02rem;
+  line-height:1.7;
+  max-width:62ch;
+}
+.focus-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:28px;
+}
+.focus-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:18px;
+  min-width:0;
+}
+.focus-card h3{
+  font-family:"IBM Plex Sans",sans-serif;
+  font-weight:600;
+  font-size:0.98rem;
+  color:var(--fg);
+}
+.linkedin-card{
+  margin-top:28px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:22px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.linkedin-card .t{font-weight:600;font-size:1rem}
+.linkedin-card .d{color:var(--muted);font-size:0.86rem;margin-top:4px}
+
+/* ---------- blog ---------- */
+.post-list{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.post{
+  display:grid;
+  grid-template-columns:110px 1fr;
+  gap:18px;
+  padding-block:18px;
+  border-top:1px solid var(--line);
+  text-decoration:none;
+  color:inherit;
+}
+.post:first-child{border-top:none}
+.post .date{
+  color:var(--muted);
+  font-size:0.78rem;
+  padding-top:3px;
+}
+.post .title{
+  font-size:1.02rem;
+  font-weight:600;
+  line-height:1.4;
+}
+.post .title:hover{color:var(--accent-2)}
+.post .excerpt{
+  color:var(--muted);
+  font-size:0.88rem;
+  margin-top:6px;
+  line-height:1.5;
+}
+
+/* ---------- video ---------- */
+.video-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  margin-top:28px;
+}
+.video-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  min-width:0;
+}
+.video-thumb{
+  position:relative;
+  aspect-ratio:16/9;
+  cursor:pointer;
+  background:#000;
+}
+.video-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.play-dot{
+  position:absolute;inset:0;margin:auto;
+  width:48px;height:48px;border-radius:50%;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+}
+.play-dot svg{width:16px;height:16px}
+.video-frame{width:100%;aspect-ratio:16/9;border:0;display:block}
+.video-title{
+  padding:11px 13px;
+  font-size:0.86rem;
+  font-weight:600;
+  line-height:1.35;
+}
+
+/* ---------- contact ---------- */
+.contact-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+.social-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:32px;
+  padding-top:26px;
+  border-top:1px solid var(--line);
+}
+.icon-btn{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  transition:color .15s ease, border-color .15s ease, transform .15s ease;
+}
+.icon-btn svg{width:19px;height:19px}
+.icon-btn:hover{color:var(--accent-2);border-color:var(--muted);transform:translateY(-2px)}
+
+footer{
+  padding:28px 24px 40px;
+  text-align:center;
+  color:var(--muted);
+  font-size:0.78rem;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px){
+  .hero{grid-template-columns:1fr}
+  .profile-wrap{justify-self:start}
+  .latest-grid{grid-template-columns:1fr}
+  .focus-grid{grid-template-columns:1fr}
+  .post{grid-template-columns:1fr;gap:4px}
+  .video-grid{grid-template-columns:1fr}
+  .navrow{flex-direction:column;align-items:flex-start;gap:12px}
+  .navlinks{gap:6px}
+  .navlinks a{padding:6px 10px;font-size:0.8rem}
+}
+
+.frame[hidden]{display:none}
+
+@media (prefers-reduced-motion: no-preference){
+  .frame{animation:rise .35s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navrow">
+    <div class="brand">paresh<span>'</span>s <span>stack</span></div>
+    <div class="navlinks mono">
+      <a href="#home" class="current">home</a>
+      <a href="#portfolio">portfolio</a>
+      <a href="#blog">blog</a>
+      <a href="#video">video</a>
+      <a href="#contact">contact</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <section id="home" class="frame">
+    <div class="wrap">
+      <div class="hero">
+        <div>
+          <h1>Building things, then writing up how they got built.</h1>
+          <p class="lede">I'm Paresh — I work across AI tooling, Dynamics 365 and the Power Platform, and share what I learn along the way: how-tos, prompt patterns, and the occasional "I let Claude do the heavy lifting" story.</p>
+          <div class="tags">
+            <span class="tag">AI &amp; Claude tooling</span>
+            <span class="tag">Dynamics 365 / Power Platform</span>
+            <span class="tag">Prompt engineering</span>
+          </div>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#blog">Read the blog</a>
+            <a class="btn btn-ghost" href="#video">Watch the videos</a>
+          </div>
+        </div>
+        <div class="profile-wrap">
+          <img class="profile-pic" src="profile.jpg" alt="Paresh Sharma" onerror="this.style.display='none'">
+          <div class="profile-cap mono"><strong>Paresh Sharma</strong>AI tooling · Dynamics 365</div>
+        </div>
+      </div>
+
+      <div class="about-block">
+        <h2 style="font-size:1.3rem">A bit about me</h2>
+        <p class="bio">I spend most of my days inside Dynamics 365 and the Power Platform, building out business systems for real teams — and the rest of my time figuring out how AI tools like Claude fit into that work without getting in the way. Paresh's Stack is where I write that process down: the prompts that actually worked, the configuration steps nobody documents, and the occasional project built almost entirely with an AI assistant doing the typing. If you're building similar things, the blog and videos below are the running log.</p>
+      </div>
+
+      <div class="latest-grid">
+        <a class="latest-card" id="home-latest-post" href="https://pareshstack.blogspot.com" target="_blank" rel="noopener">
+          <div class="latest-k mono">latest post</div>
+          <div class="latest-t">Loading…</div>
+        </a>
+        <a class="latest-card" id="home-latest-video" href="#video">
+          <div class="latest-k mono">latest video</div>
+          <div class="latest-video-body">
+            <img class="latest-thumb" alt="">
+            <div class="latest-t">Loading…</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio" class="frame" hidden>
+    <div class="wrap">
+      <div class="frame-tag mono">portfolio</div>
+      <h2 style="font-size:1.6rem">What I work on</h2>
+      <p class="bio">Most of my work sits at the join between business systems and AI — configuring Dynamics 365 and Power Platform environments, then using tools like Claude to speed up the parts that used to take all day. For case studies, past roles, and the full work history, LinkedIn is the source of truth.</p>
+
+      <div class="focus-grid">
+        <div class="focus-card">
+          <h3>AI-assisted app building</h3>
+        </div>
+        <div class="focus-card">
+          <h3>Dynamics 365 &amp; Power Platform</h3>
+        </div>
+        <div class="focus-card">
+          <h3>Prompt design &amp; workflows</h3>
+        </div>
+      </div>
+
+      <div class="linkedin-card">
+        <div>
+          <div class="t">See the full work history</div>
+          <div class="d">Projects, roles, and recommendations — all kept current on LinkedIn.</div>
+        </div>
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/itspareshsharma/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog" class="frame" hidden>
+    <div class="wrap">
+      <div class="frame-tag mono">blog</div>
+      <h2 style="font-size:1.6rem">From Paresh's Stack</h2>
+      <p class="bio">Posts on building with AI, day to day — published on Blogger. The four most recent load automatically below.</p>
+
+      <div class="post-list" id="blog-posts">
+        <p class="bio">Loading latest posts…</p>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-ghost" href="https://pareshstack.blogspot.com" target="_blank" rel="noopener">All posts on Blogger →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="video" class="frame" hidden>
+    <div class="wrap">
+      <div class="frame-tag mono">video</div>
+      <h2 style="font-size:1.6rem">Watch it instead of reading it</h2>
+      <p class="bio">Video walkthroughs of the same AI and Dynamics 365 topics covered on the blog. Click a thumbnail to play it right here.</p>
+
+      <div class="video-grid" id="video-grid">
+        <p class="bio">Loading latest videos…</p>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn btn-ghost" href="https://www.youtube.com/@pareshstack" target="_blank" rel="noopener">All videos on YouTube →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="frame" hidden>
+    <div class="wrap">
+      <div class="frame-tag mono">contact</div>
+      <h2 style="font-size:1.6rem">Get in touch</h2>
+      <p class="bio">Happy to talk about Dynamics 365 builds, AI workflows, or a post topic you'd like covered. LinkedIn is the best way to reach me.</p>
+
+      <div class="contact-row">
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/itspareshsharma/" target="_blank" rel="noopener">Message me on LinkedIn</a>
+      </div>
+
+      <div class="social-row">
+        <a class="icon-btn" href="https://www.linkedin.com/in/itspareshsharma/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.1 1 2.48 1s2.5 1.12 2.5 2.5zM.5 8.24h4V23h-4V8.24zM8.5 8.24h3.83v2.01h.05c.53-1 1.84-2.06 3.79-2.06 4.06 0 4.81 2.67 4.81 6.15V23h-4v-7.1c0-1.7-.03-3.88-2.36-3.88-2.37 0-2.73 1.85-2.73 3.76V23h-4V8.24z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://github.com/pareshstack" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.26 9.28 7.78 10.78.57.1.78-.25.78-.55 0-.27-.01-1.17-.02-2.12-3.16.69-3.83-1.34-3.83-1.34-.52-1.31-1.26-1.66-1.26-1.66-1.03-.7.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.74 2.65 1.24 3.3.95.1-.73.4-1.24.72-1.52-2.52-.29-5.17-1.26-5.17-5.6 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.16.91-.25 1.89-.38 2.86-.38s1.95.13 2.86.38c2.18-1.47 3.14-1.16 3.14-1.16.62 1.57.23 2.73.11 3.02.73.79 1.17 1.8 1.17 3.04 0 4.35-2.65 5.31-5.18 5.59.41.35.77 1.04.77 2.11 0 1.52-.01 2.75-.01 3.12 0 .3.21.66.79.55 4.52-1.5 7.78-5.76 7.78-10.78C23.02 5.24 18.27.5 12 .5z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://www.instagram.com/pareshstack/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a class="icon-btn" href="https://x.com/pareshstak" target="_blank" rel="noopener" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.3 2H21l-6.6 7.54L22.2 22h-6.2l-4.86-6.37L5.6 22H3l7.06-8.07L2.1 2h6.35l4.4 5.82L18.3 2zm-1.08 18h1.7L7.86 3.9H6.03l11.19 16.1z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://www.tiktok.com/@pareshstack" target="_blank" rel="noopener" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2h-3.2v13.6a3 3 0 1 1-2.6-2.97v-3.25a6.25 6.25 0 1 0 5.8 6.23V9.1a7.9 7.9 0 0 0 4.4 1.34V7.23A4.78 4.78 0 0 1 16.6 2z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://www.youtube.com/@pareshstack" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 7.2a3.02 3.02 0 0 0-2.12-2.14C19.5 4.5 12 4.5 12 4.5s-7.5 0-9.38.56A3.02 3.02 0 0 0 .5 7.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 4.8 3.02 3.02 0 0 0 2.12 2.14C4.5 19.5 12 19.5 12 19.5s7.5 0 9.38-.56a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-4.8zM9.6 15.4V8.6L15.8 12l-6.2 3.4z"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="mono">pareshstack.com</footer>
+
+<script>
+/* ---------- small helpers ---------- */
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
+/* ---------- tabs: show exactly one section at a time ---------- */
+(function(){
+  var panels = Array.prototype.slice.call(document.querySelectorAll('main > .frame'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  var validIds = panels.map(function(p){ return p.id; });
+
+  function idFromHash(){
+    var id = (location.hash || '#home').slice(1);
+    return validIds.indexOf(id) !== -1 ? id : 'home';
+  }
+
+  function showPanel(id, opts){
+    panels.forEach(function(p){ p.hidden = (p.id !== id); });
+    navLinks.forEach(function(a){
+      a.classList.toggle('current', a.getAttribute('href') === '#' + id);
+    });
+    if(!opts || !opts.skipScroll) window.scrollTo(0, 0);
+  }
+
+  // intercept any in-page link that points at a tab (nav buttons and hero CTAs alike)
+  document.addEventListener('click', function(ev){
+    var a = ev.target.closest('a[href^="#"]');
+    if(!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if(validIds.indexOf(id) === -1) return;
+    ev.preventDefault();
+    if(location.hash !== '#' + id) history.pushState(null, '', '#' + id);
+    showPanel(id);
+  });
+
+  window.addEventListener('popstate', function(){ showPanel(idFromHash()); });
+
+  showPanel(idFromHash(), { skipScroll: true });
+})();
+
+/* ---------- live blog posts (Blogger JSON feed, no API key needed) ---------- */
+(function(){
+  window.__onBlogFeed = function(feed){
+    var container = document.getElementById('blog-posts');
+    var entries = (feed && feed.feed && feed.feed.entry) || [];
+    if(!entries.length){
+      container.innerHTML = '<p class="bio">No posts yet — check back soon.</p>';
+      return;
+    }
+    container.innerHTML = entries.map(function(e){
+      var title = e.title && e.title.$t ? e.title.$t : 'Untitled post';
+      var links = e.link || [];
+      var alt = links.filter(function(l){ return l.rel === 'alternate'; })[0];
+      var href = alt ? alt.href : 'https://pareshstack.blogspot.com';
+      var published = e.published && e.published.$t ? new Date(e.published.$t) : null;
+      var dateStr = published ? published.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+      var rawSummary = e.summary && e.summary.$t ? e.summary.$t : (e.content && e.content.$t ? e.content.$t : '');
+      var summary = rawSummary.replace(/<[^>]+>/g, '').trim().slice(0, 140);
+      return '<a class="post" href="' + href + '" target="_blank" rel="noopener">' +
+               '<div class="date mono">' + escapeHtml(dateStr) + '</div>' +
+               '<div>' +
+                 '<div class="title">' + escapeHtml(title) + '</div>' +
+                 '<div class="excerpt">' + escapeHtml(summary) + (summary.length === 140 ? '…' : '') + '</div>' +
+               '</div>' +
+             '</a>';
+    }).join('');
+
+    // mirror the newest post into the Home tab's teaser card
+    var homeCard = document.getElementById('home-latest-post');
+    if(homeCard){
+      var first = entries[0];
+      var firstTitle = first.title && first.title.$t ? first.title.$t : 'Untitled post';
+      var firstLinks = first.link || [];
+      var firstAlt = firstLinks.filter(function(l){ return l.rel === 'alternate'; })[0];
+      homeCard.href = firstAlt ? firstAlt.href : 'https://pareshstack.blogspot.com';
+      homeCard.querySelector('.latest-t').textContent = firstTitle;
+    }
+  };
+
+  var s = document.createElement('script');
+  s.src = 'https://pareshstack.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=4&callback=__onBlogFeed';
+  s.onerror = function(){
+    document.getElementById('blog-posts').innerHTML = '<p class="bio">Couldn\'t load posts right now — <a href="https://pareshstack.blogspot.com" target="_blank" rel="noopener">read the blog directly</a>.</p>';
+  };
+  document.body.appendChild(s);
+})();
+
+/* ---------- live videos (YouTube channel RSS feed, no API key needed) ---------- */
+(function(){
+  // Fill this in with your channel's UC... ID (find it via "view page source" on your
+  // channel's About tab and search for "channelId", or in YouTube Studio > Settings > Channel > Advanced).
+  var YT_CHANNEL_ID = 'UCHzeZ3vqw0yVTuLA9EbAe1Q';
+
+  var grid = document.getElementById('video-grid');
+
+  function renderFallback(message){
+    grid.innerHTML = '<p class="bio">' + message + ' <a href="https://www.youtube.com/@pareshstack" target="_blank" rel="noopener">Watch on YouTube</a> instead.</p>';
+  }
+
+  function wireUpPlayButtons(){
+    Array.prototype.slice.call(grid.querySelectorAll('.video-thumb')).forEach(function(el){
+      function play(){
+        var card = el.closest('.video-card');
+        var id = card.getAttribute('data-id');
+        var title = card.getAttribute('data-title') || 'video';
+        el.outerHTML = '<iframe class="video-frame" src="https://www.youtube.com/embed/' + id + '?autoplay=1" ' +
+          'title="' + escapeHtml(title) + '" frameborder="0" ' +
+          'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      }
+      el.addEventListener('click', play);
+      el.addEventListener('keypress', function(ev){ if(ev.key === 'Enter') play(); });
+    });
+  }
+
+  if(!YT_CHANNEL_ID){
+    renderFallback('Add your YouTube channel ID in the code to show live videos here.');
+    return;
+  }
+
+  var feedUrl = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + encodeURIComponent(YT_CHANNEL_ID);
+  var proxied = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(feedUrl);
+
+  fetch(proxied)
+    .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.text(); })
+    .then(function(xmlText){
+      var xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+      var entries = Array.prototype.slice.call(xml.getElementsByTagNameNS('*', 'entry')).slice(0, 6);
+      if(!entries.length){
+        renderFallback('No videos yet —');
+        return;
+      }
+      grid.innerHTML = entries.map(function(entry){
+        var videoId = (entry.getElementsByTagNameNS('*', 'videoId')[0] || {}).textContent || '';
+        var title = (entry.getElementsByTagNameNS('*', 'title')[0] || {}).textContent || 'Untitled video';
+        var thumb = 'https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg';
+        return '<div class="video-card" data-id="' + escapeHtml(videoId) + '" data-title="' + escapeHtml(title) + '">' +
+                 '<div class="video-thumb" role="button" tabindex="0" aria-label="Play ' + escapeHtml(title) + '">' +
+                   '<img src="' + thumb + '" alt="" loading="lazy">' +
+                   '<span class="play-dot"><svg viewBox="0 0 24 24" fill="#1a1300"><path d="M8 5v14l11-7z"/></svg></span>' +
+                 '</div>' +
+                 '<div class="video-title">' + escapeHtml(title) + '</div>' +
+               '</div>';
+      }).join('');
+      wireUpPlayButtons();
+
+      // mirror the newest video into the Home tab's teaser card
+      var homeVideo = document.getElementById('home-latest-video');
+      if(homeVideo && entries.length){
+        var firstId = (entries[0].getElementsByTagNameNS('*', 'videoId')[0] || {}).textContent || '';
+        var firstTitle = (entries[0].getElementsByTagNameNS('*', 'title')[0] || {}).textContent || 'Untitled video';
+        var img = homeVideo.querySelector('.latest-thumb');
+        img.src = 'https://i.ytimg.com/vi/' + firstId + '/hqdefault.jpg';
+        img.classList.add('loaded');
+        homeVideo.querySelector('.latest-t').textContent = firstTitle;
+      }
+    })
+    .catch(function(){
+      renderFallback('Couldn\'t load videos right now —');
+    });
+})();
+</script>
+</body>
+</html>
