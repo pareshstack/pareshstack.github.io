@@ -379,16 +379,33 @@ nav{
 }
 
 /* ---------- skills ---------- */
-.skill-grid{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+.skill-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+.skill-filter{
+  font:inherit;font-size:0.875rem;min-height:44px;padding:0 16px;
+  border-radius:100px;border:1px solid var(--line);background:transparent;
+  color:var(--muted);cursor:pointer;
+}
+.skill-filter:hover{color:var(--fg);border-color:var(--muted)}
+.skill-filter[aria-pressed="true"]{color:var(--fg);background:var(--surface-2);box-shadow:inset 0 -2px 0 var(--accent)}
+.skill-section{margin-top:36px}
+.skill-section .frame-tag{margin-bottom:16px}
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .skill-card{
   background:var(--surface);
   border:1px solid var(--line);
   border-radius:12px;
-  padding:20px 22px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
 }
-.skill-name{font-size:0.875rem;color:var(--accent-2);margin-bottom:8px}
-.skill-desc{color:var(--muted);font-size:0.92rem;line-height:1.6}
+.skill-img{aspect-ratio:16/9;background:var(--surface-2);display:block;width:100%;object-fit:cover}
+.skill-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.skill-name{font-size:0.9375rem;color:var(--fg);margin-bottom:8px;font-weight:500}
+.skill-desc{color:var(--muted);font-size:0.92rem;line-height:1.6;flex:1;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .skill-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.skill-links .btn{font-size:0.875rem;padding:0 14px}
 
 /* ---------- contact ---------- */
 .contact-row{
@@ -442,7 +459,7 @@ footer{
   .navlinks a{padding:0 12px;font-size:0.9rem;flex:none}
 }
 
-.frame[hidden]{display:none}
+.frame[hidden],.skill-section[hidden]{display:none}
 
 @media (prefers-reduced-motion: no-preference){
   .frame{animation:rise .35s ease both}
@@ -596,7 +613,7 @@ footer{
       <h2 style="font-size:1.6rem">Claude skills I've packaged</h2>
       <p class="bio">Reusable playbooks for Claude and other AI assistants, built from real projects and shared publicly. This list is pulled live from the repo — publish a new skill there and it shows up here automatically, no rebuild needed.</p>
 
-      <div class="skill-grid" id="skills-list">
+      <div id="skills-list">
         <p class="bio">Loading skills…</p>
       </div>
 
@@ -838,29 +855,69 @@ function escapeHtml(str){
             return {
               folder: d.name,
               name: meta.name || d.name,
+              category: meta.category || 'Other',
               description: meta.description || 'A Claude skill — see the repo for details.'
             };
           })
           .catch(function(){
-            return { folder: d.name, name: d.name, description: 'A Claude skill — see the repo for details.' };
+            return { folder: d.name, name: d.name, category: 'Other', description: 'A Claude skill — see the repo for details.' };
           });
       }));
     })
     .then(function(skills){
       if(!skills) return;
       if(!skills.length){ renderFallback('No skills published yet —'); return; }
-      grid.innerHTML = skills.map(function(s){
+
+      var ORDER = ['Video and Shorts', 'Dynamics 365 and Power Platform', 'Web and publishing'];
+      var groups = {};
+      skills.forEach(function(s){ (groups[s.category] = groups[s.category] || []).push(s); });
+      var names = Object.keys(groups).sort(function(a, b){
+        var ia = ORDER.indexOf(a), ib = ORDER.indexOf(b);
+        if(ia === -1) ia = a === 'Other' ? 999 : 100;
+        if(ib === -1) ib = b === 'Other' ? 999 : 100;
+        return ia - ib || a.localeCompare(b);
+      });
+
+      function card(s){
         var repoUrl = 'https://github.com/' + OWNER + '/' + REPO + '/tree/' + BRANCH + '/skills/' + s.folder;
         var downloadUrl = 'https://download-directory.github.io/?url=' + encodeURIComponent(repoUrl);
+        var img = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/skills/' + s.folder + '/preview.svg';
         return '<div class="skill-card">' +
-                 '<div class="skill-name mono">' + escapeHtml(s.name) + '</div>' +
-                 '<div class="skill-desc">' + escapeHtml(s.description) + '</div>' +
-                 '<div class="skill-links">' +
-                   '<a class="btn btn-ghost" href="' + repoUrl + '" target="_blank" rel="noopener">View on GitHub</a>' +
-                   '<a class="btn btn-primary" href="' + downloadUrl + '" target="_blank" rel="noopener">Download</a>' +
+                 '<img class="skill-img" src="' + img + '" alt="Preview of the ' + escapeHtml(s.name) + ' skill" loading="lazy" onerror="this.removeAttribute(\'src\')">' +
+                 '<div class="skill-body">' +
+                   '<div class="skill-name mono">' + escapeHtml(s.name) + '</div>' +
+                   '<div class="skill-desc">' + escapeHtml(s.description) + '</div>' +
+                   '<div class="skill-links">' +
+                     '<a class="btn btn-ghost" href="' + repoUrl + '" target="_blank" rel="noopener">View on GitHub</a>' +
+                     '<a class="btn btn-primary" href="' + downloadUrl + '" target="_blank" rel="noopener">Download</a>' +
+                   '</div>' +
                  '</div>' +
                '</div>';
+      }
+
+      var filters = names.length > 1
+        ? '<div class="skill-filters" role="group" aria-label="Filter skills by section">' +
+            '<button class="skill-filter" type="button" data-cat="" aria-pressed="true">All skills</button>' +
+            names.map(function(n){ return '<button class="skill-filter" type="button" data-cat="' + escapeHtml(n) + '" aria-pressed="false">' + escapeHtml(n) + '</button>'; }).join('') +
+          '</div>'
+        : '';
+      var sections = names.map(function(n){
+        return '<div class="skill-section" data-cat="' + escapeHtml(n) + '">' +
+                 '<div class="frame-tag mono">' + escapeHtml(n.toLowerCase()) + '</div>' +
+                 '<div class="skill-grid">' + groups[n].map(card).join('') + '</div>' +
+               '</div>';
       }).join('');
+      grid.innerHTML = filters + sections;
+
+      grid.addEventListener('click', function(e){
+        var b = e.target.closest('.skill-filter');
+        if(!b) return;
+        var cat = b.getAttribute('data-cat');
+        grid.querySelectorAll('.skill-filter').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        grid.querySelectorAll('.skill-section').forEach(function(sec){
+          sec.hidden = !!cat && sec.getAttribute('data-cat') !== cat;
+        });
+      });
     })
     .catch(function(){
       renderFallback('Couldn\'t load skills right now —');
