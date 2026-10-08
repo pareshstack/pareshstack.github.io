@@ -316,31 +316,48 @@ nav{
 .post-list{display:flex;flex-direction:column;gap:2px;margin-top:8px}
 .post{
   display:grid;
-  grid-template-columns:110px 1fr;
-  gap:18px;
-  padding-block:18px;
+  grid-template-columns:220px minmax(0,1fr);
+  gap:22px;
+  padding-block:22px;
   border-top:1px solid var(--line);
   text-decoration:none;
   color:inherit;
 }
 .post:first-child{border-top:none}
-.post .date{
+.post-thumb{
+  aspect-ratio:16/9;
+  width:100%;
+  object-fit:cover;
+  border-radius:10px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  display:block;
+}
+.post-meta{
   color:var(--muted);
   font-size:0.875rem;
-  padding-top:3px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
 }
 .post .title{
-  font-size:1.02rem;
+  font-size:1.125rem;
   font-weight:600;
-  line-height:1.4;
+  line-height:1.35;
 }
-.post .title:hover{color:var(--accent-2)}
+.post:hover .title,.post:focus-visible .title{color:var(--accent-2)}
 .post .excerpt{
   color:var(--muted);
-  font-size:0.88rem;
-  margin-top:6px;
-  line-height:1.5;
+  font-size:0.9375rem;
+  margin-top:8px;
+  line-height:1.6;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
+.post-cta{display:inline-block;margin-top:10px;font-size:0.875rem;color:var(--accent-2)}
 
 /* ---------- video ---------- */
 .video-grid{
@@ -451,7 +468,7 @@ footer{
   .profile-wrap{justify-self:start}
   .latest-grid{grid-template-columns:1fr}
   .focus-grid{grid-template-columns:1fr}
-  .post{grid-template-columns:1fr;gap:4px}
+  .post{grid-template-columns:1fr;gap:14px}
   .video-grid{grid-template-columns:1fr}
   .navrow{flex-direction:column;align-items:flex-start;gap:12px}
   .navlinks{gap:6px;flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none;padding-bottom:2px}
@@ -579,7 +596,7 @@ footer{
     <div class="wrap">
       <div class="frame-tag mono">blog</div>
       <h2 style="font-size:1.6rem">From Paresh's Stack</h2>
-      <p class="bio">Posts on building with AI, day to day — published on Blogger. The four most recent load automatically below.</p>
+      <p class="bio">Posts on building with AI, day to day — published on Blogger. The latest posts load automatically below.</p>
 
       <div class="post-list" id="blog-posts">
         <p class="bio">Loading latest posts…</p>
@@ -719,13 +736,25 @@ function escapeHtml(str){
       var href = alt ? alt.href : 'https://pareshstack.blogspot.com';
       var published = e.published && e.published.$t ? new Date(e.published.$t) : null;
       var dateStr = published ? published.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
-      var rawSummary = e.summary && e.summary.$t ? e.summary.$t : (e.content && e.content.$t ? e.content.$t : '');
-      var summary = rawSummary.replace(/<[^>]+>/g, '').trim().slice(0, 140);
+      var rawHtml = e.content && e.content.$t ? e.content.$t : (e.summary && e.summary.$t ? e.summary.$t : '');
+      var stripped = rawHtml.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ');
+      var decoder = document.createElement('textarea');
+      decoder.innerHTML = stripped;
+      var text = decoder.value.replace(/\s+/g, ' ').trim();
+      var words = text ? text.split(' ').length : 0;
+      var minutes = Math.max(1, Math.round(words / 200));
+      var LIMIT = 240;
+      var summary = text.slice(0, LIMIT);
+      if(text.length > LIMIT){ summary = summary.replace(/\s+\S*$/, ''); }
+      var thumbUrl = e.media$thumbnail && e.media$thumbnail.url ? e.media$thumbnail.url.replace(/=s\d+[^\/]*$/, '=w640-h360-c').replace(/\/s\d+[^\/]*\/([^\/]+)$/, '/w640-h360-c/$1') : '';
+      var thumb = thumbUrl ? '<img class="post-thumb" src="' + escapeHtml(thumbUrl) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<div class="post-thumb" aria-hidden="true"></div>';
       return '<a class="post" href="' + href + '" target="_blank" rel="noopener">' +
-               '<div class="date mono">' + escapeHtml(dateStr) + '</div>' +
+               thumb +
                '<div>' +
+                 '<div class="post-meta mono"><span>' + escapeHtml(dateStr) + '</span><span aria-hidden="true">·</span><span>' + minutes + ' min read</span></div>' +
                  '<div class="title">' + escapeHtml(title) + '</div>' +
-                 '<div class="excerpt">' + escapeHtml(summary) + (summary.length === 140 ? '…' : '') + '</div>' +
+                 '<div class="excerpt">' + escapeHtml(summary) + (text.length > LIMIT ? '…' : '') + '</div>' +
+                 '<span class="post-cta">Read the full post ↗</span>' +
                '</div>' +
              '</a>';
     }).join('');
@@ -743,7 +772,7 @@ function escapeHtml(str){
   };
 
   var s = document.createElement('script');
-  s.src = 'https://pareshstack.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=4&callback=__onBlogFeed';
+  s.src = 'https://pareshstack.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=6&callback=__onBlogFeed';
   s.onerror = function(){
     document.getElementById('blog-posts').innerHTML = '<p class="bio">Couldn\'t load posts right now — <a href="https://pareshstack.blogspot.com" target="_blank" rel="noopener">read the blog directly</a>.</p>';
   };
