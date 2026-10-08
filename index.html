@@ -840,7 +840,20 @@ function escapeHtml(str){
     return meta;
   }
 
-  fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/skills', { cache: 'no-store' })
+  // Preferred: skills.json, built by a scheduled GitHub Action and served from this
+  // site, so visitors never hit GitHub's anonymous 60-calls/hour API limit.
+  // Fallback: read the repo live from the API (the original behaviour).
+  function loadFromJson(){
+    return fetch('skills.json', { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('no skills.json'); return r.json(); })
+      .then(function(list){
+        if(!Array.isArray(list) || !list.length) throw new Error('empty skills.json');
+        return list;
+      });
+  }
+
+  function loadFromApi(){
+  return fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/skills', { cache: 'no-store' })
     .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
     .then(function(items){
       var dirs = (items || []).filter(function(i){ return i.type === 'dir'; });
@@ -863,7 +876,10 @@ function escapeHtml(str){
             return { folder: d.name, name: d.name, category: 'Other', description: 'A Claude skill — see the repo for details.' };
           });
       }));
-    })
+    });
+  }
+
+  loadFromJson().catch(loadFromApi)
     .then(function(skills){
       if(!skills) return;
       if(!skills.length){ renderFallback('No skills published yet —'); return; }
@@ -881,7 +897,7 @@ function escapeHtml(str){
       function card(s){
         var repoUrl = 'https://github.com/' + OWNER + '/' + REPO + '/tree/' + BRANCH + '/skills/' + s.folder;
         var downloadUrl = 'https://download-directory.github.io/?url=' + encodeURIComponent(repoUrl);
-        var img = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/skills/' + s.folder + '/preview.svg';
+        var img = 'https://raw.githubusercontent.com/' + OWNER + '/' + REPO + '/' + BRANCH + '/skills/' + s.folder + '/' + (s.preview || 'preview.svg');
         return '<div class="skill-card">' +
                  '<img class="skill-img" src="' + img + '" alt="Preview of the ' + escapeHtml(s.name) + ' skill" loading="lazy" onerror="this.removeAttribute(\'src\')">' +
                  '<div class="skill-body">' +

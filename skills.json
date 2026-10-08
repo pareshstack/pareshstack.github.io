@@ -1,0 +1,30 @@
+[
+  {
+    "folder": "creator-site-github-pages",
+    "name": "creator-site-github-pages",
+    "category": "Web and publishing",
+    "description": "Build and deploy a personal creator/portfolio site (tabs like Home, Portfolio, Blog, Video, Contact) that live-fetches the person's blog and YouTube content, hosted free on GitHub Pages with their own custom domain, accessible and light/dark aware, with an optional skills showcase. Use when someone wants a personal site, link-hub, or creator homepage tied to their own blog/YouTube/socials.",
+    "preview": "preview.svg"
+  },
+  {
+    "folder": "dataverse-solution-builder",
+    "name": "dataverse-solution-builder",
+    "category": "Dynamics 365 and Power Platform",
+    "description": "Configure a Microsoft Dynamics 365 / Dataverse environment from a design document — build tables, columns, relationships, plug-ins, a model-driven app, views, forms, a dashboard and demo data via scripted Dataverse Web API calls.",
+    "preview": "preview.svg"
+  },
+  {
+    "folder": "shorts-maker",
+    "name": "shorts-maker",
+    "category": "Video and Shorts",
+    "description": "Turn a long tutorial/talking video into several clean vertical YouTube Shorts (1080x1920, no burned-in captions) AND a matching glossy vertical thumbnail for each clip. Names files descriptively, e.g. 'Clip-Explaining the thing nobody gets.mp4'. Use whenever the user names a video to make Shorts/clips from, e.g. 'make shorts from sample2.mp4'.",
+    "preview": "preview.svg"
+  },
+  {
+    "folder": "youtube-shorts",
+    "name": "youtube-shorts",
+    "category": "Video and Shorts",
+    "description": "Turn a long tutorial/talking video into several captioned vertical YouTube Shorts. Use when the user names a video to make Shorts/clips from, e.g. 'make shorts from sample2.mp4'.",
+    "preview": "preview.svg"
+  }
+]
