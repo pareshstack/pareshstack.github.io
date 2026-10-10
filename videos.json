@@ -1,5 +1,9 @@
 [
   {
+    "id": "fZbD9FAEOPE",
+    "title": "Hallucinations, Bias, Privacy, and Responsible Use of Claude"
+  },
+  {
     "id": "PfglMF3ZndU",
     "title": "Working Safely with Files and Documents in Claude"
   },
@@ -14,9 +18,5 @@
   {
     "id": "XaUbUxnZT3E",
     "title": "How to Write Your First Good Claude Prompt"
-  },
-  {
-    "id": "XDZ2MvWFYrU",
-    "title": "Getting Started with Claude  Your First Conversation"
   }
 ]
