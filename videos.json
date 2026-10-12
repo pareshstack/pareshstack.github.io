@@ -1,5 +1,9 @@
 [
   {
+    "id": "zDst0XB1urE",
+    "title": "Prompt Patterns That Consistently Improve Results in Claude"
+  },
+  {
     "id": "fZbD9FAEOPE",
     "title": "Hallucinations, Bias, Privacy, and Responsible Use of Claude"
   },
@@ -14,9 +18,5 @@
   {
     "id": "0i5UZnpWAgs",
     "title": "10 Practical Ways Beginners Can Use Claude"
-  },
-  {
-    "id": "XaUbUxnZT3E",
-    "title": "How to Write Your First Good Claude Prompt"
   }
 ]
