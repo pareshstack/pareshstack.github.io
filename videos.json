@@ -1,5 +1,9 @@
 [
   {
+    "id": "nM-YiA9eoN8",
+    "title": "Using Examples, Templates, and Structured Outputs in Claude"
+  },
+  {
     "id": "zDst0XB1urE",
     "title": "Prompt Patterns That Consistently Improve Results in Claude"
   },
@@ -14,9 +18,5 @@
   {
     "id": "vRQ5-9mKQ1c",
     "title": "Understanding Context Follow Ups and Conversation History in Claude"
-  },
-  {
-    "id": "0i5UZnpWAgs",
-    "title": "10 Practical Ways Beginners Can Use Claude"
   }
 ]
