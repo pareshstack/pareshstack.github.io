@@ -1,5 +1,9 @@
 [
   {
+    "id": "MQGx-gkpnXY",
+    "title": "Copilot Studio Agent Accounts"
+  },
+  {
     "id": "8dk1E47wECE",
     "title": "Build your prompt library"
   },
@@ -14,9 +18,5 @@
   {
     "id": "fZbD9FAEOPE",
     "title": "Hallucinations, Bias, Privacy, and Responsible Use of Claude"
-  },
-  {
-    "id": "PfglMF3ZndU",
-    "title": "Working Safely with Files and Documents in Claude"
   }
 ]
