@@ -1,5 +1,9 @@
 [
   {
+    "id": "PlEaegbi2FQ",
+    "title": "EP01 What Dynamics 365 Sales is and where it fits"
+  },
+  {
     "id": "MQGx-gkpnXY",
     "title": "Copilot Studio Agent Accounts"
   },
@@ -14,9 +18,5 @@
   {
     "id": "zDst0XB1urE",
     "title": "Prompt Patterns That Consistently Improve Results in Claude"
-  },
-  {
-    "id": "fZbD9FAEOPE",
-    "title": "Hallucinations, Bias, Privacy, and Responsible Use of Claude"
   }
 ]
